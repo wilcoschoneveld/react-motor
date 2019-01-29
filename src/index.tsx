@@ -33,6 +33,11 @@ const jsonToPath = (state: any) => {
     return `/${base64}`;
 };
 
+const shouldNavigate = (event: React.MouseEvent) =>
+    !event.defaultPrevented &&
+    event.button === 0 &&
+    !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
+
 export function createMotor<T>(defaultState: T) {
     const motorContext = React.createContext<IMotorContext<T>>({
         state: defaultState,
@@ -85,5 +90,23 @@ export function createMotor<T>(defaultState: T) {
 
     const useMotor = () => React.useContext(motorContext);
 
-    return { MotorProvider, useMotor };
+    const Link: React.FunctionComponent<{ nextState: T }> = ({ nextState, children }) => {
+        const motor = useMotor();
+        const href = jsonToPath(nextState);
+
+        const onClick = (event: React.MouseEvent) => {
+            if (shouldNavigate(event)) {
+                event.preventDefault();
+                motor.navigate(nextState);
+            }
+        };
+
+        return (
+            <a href={href} onClick={onClick}>
+                {children}
+            </a>
+        );
+    };
+
+    return { MotorProvider, useMotor, Link };
 }

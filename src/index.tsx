@@ -90,14 +90,14 @@ export function createMotor<T>(defaultState: T) {
 
     const useMotor = () => React.useContext(motorContext);
 
-    const Link: React.FunctionComponent<{ nextState: T }> = ({ nextState, children }) => {
+    const Link: React.FunctionComponent<{ to: T }> = ({ to, children }) => {
         const motor = useMotor();
-        const href = jsonToPath(nextState);
+        const href = jsonToPath(to);
 
         const onClick = (event: React.MouseEvent) => {
             if (shouldNavigate(event)) {
                 event.preventDefault();
-                motor.navigate(nextState);
+                motor.navigate(to);
             }
         };
 

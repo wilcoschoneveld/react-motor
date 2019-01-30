@@ -8,7 +8,9 @@ interface IMotorContext<T> {
 const pathToJson = (path: string) => {
     let base64 = path.substr(1);
 
-    base64 += Array(5 - (base64.length % 4)).join("=");
+    while (base64.length % 4 > 0) {
+        base64 += "=";
+    }
 
     base64 = base64
         .replace(/\-/g, "+") // Convert '-' to '+'
@@ -28,7 +30,7 @@ const jsonToPath = (state: any) => {
         .btoa(rawString)
         .replace(/\+/g, "-") // Convert '+' to '-'
         .replace(/\//g, "_") // Convert '/' to '_'
-        .replace(/=+$/, "");
+        .replace(/=+$/, ""); // Remove trailing =
 
     return `/${base64}`;
 };

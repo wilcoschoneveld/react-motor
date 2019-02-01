@@ -5,9 +5,20 @@ interface IMotorContext<T> {
     navigate: (state: T) => void;
 }
 
-const pathToJson = (path: string) => {
-    let base64 = path.substr(1);
+interface IMotorOptions<T> {
+    stateToPath: (state: T) => string;
+    pathToState: (path: string) => T;
+}
 
+export const b64encode = (rawString: string) => {
+    return window
+        .btoa(rawString)
+        .replace(/\+/g, "-") // Convert '+' to '-'
+        .replace(/\//g, "_") // Convert '/' to '_'
+        .replace(/=+$/, ""); // Remove trailing =
+};
+
+export const b64decode = (base64: string) => {
     while (base64.length % 4 > 0) {
         base64 += "=";
     }
@@ -16,21 +27,21 @@ const pathToJson = (path: string) => {
         .replace(/\-/g, "+") // Convert '-' to '+'
         .replace(/\_/g, "/"); // Convert '_' to '/'
 
-    const rawString = window.atob(base64);
+    return window.atob(base64);
+};
 
+const pathToState = (path: string) => {
+    let base64 = path.substr(1);
+
+    const rawString = b64decode(base64);
     const state = JSON.parse(rawString);
 
     return state;
 };
 
-const jsonToPath = (state: any) => {
+const stateToPath = (state: any) => {
     const rawString = JSON.stringify(state);
-
-    const base64 = window
-        .btoa(rawString)
-        .replace(/\+/g, "-") // Convert '+' to '-'
-        .replace(/\//g, "_") // Convert '/' to '_'
-        .replace(/=+$/, ""); // Remove trailing =
+    const base64 = b64encode(rawString);
 
     return `/${base64}`;
 };
@@ -40,11 +51,16 @@ const shouldNavigate = (event: React.MouseEvent) =>
     event.button === 0 &&
     !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
 
-export function createMotor<T>(defaultState: T) {
+export function createMotor<T>(defaultState: T, options?: IMotorOptions<T>) {
     const motorContext = React.createContext<IMotorContext<T>>({
         state: defaultState,
         navigate: () => null
     });
+
+    const motorOptions = options || {
+        pathToState,
+        stateToPath
+    };
 
     const MotorProvider: React.FunctionComponent = ({ children }) => {
         const [state, setState] = React.useState<T>(defaultState);
@@ -53,9 +69,9 @@ export function createMotor<T>(defaultState: T) {
             const path = window.location.pathname;
 
             if (path === "/") {
-                window.history.replaceState(null, "", jsonToPath(state));
+                window.history.replaceState(null, "", motorOptions.stateToPath(state));
             } else {
-                setState(pathToJson(path));
+                setState(motorOptions.pathToState(path));
             }
         };
 
@@ -72,7 +88,7 @@ export function createMotor<T>(defaultState: T) {
         }, []);
 
         const navigate = (newState: T) => {
-            const path = jsonToPath(newState);
+            const path = motorOptions.stateToPath(newState);
 
             window.history.pushState(null, "", path);
             setState(newState);
@@ -94,7 +110,7 @@ export function createMotor<T>(defaultState: T) {
 
     const Link: React.FunctionComponent<{ to: T }> = ({ to, children }) => {
         const motor = useMotor();
-        const href = jsonToPath(to);
+        const href = motorOptions.stateToPath(to);
 
         const onClick = (event: React.MouseEvent) => {
             if (shouldNavigate(event)) {

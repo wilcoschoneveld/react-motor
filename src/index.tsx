@@ -10,6 +10,14 @@ interface IMotorOptions<T> {
     pathToState: (path: string) => T;
 }
 
+export class RedirectMotor<T> {
+    readonly state: T;
+
+    constructor(to: T) {
+        this.state = to;
+    }
+}
+
 export const b64encode = (rawString: string) => {
     return window
         .btoa(rawString)
@@ -31,9 +39,7 @@ export const b64decode = (base64: string) => {
 };
 
 const pathToState = (path: string) => {
-    let base64 = path.substr(1);
-
-    const rawString = b64decode(base64);
+    const rawString = b64decode(path);
     const state = JSON.parse(rawString);
 
     return state;
@@ -43,7 +49,7 @@ const stateToPath = (state: any) => {
     const rawString = JSON.stringify(state);
     const base64 = b64encode(rawString);
 
-    return `/${base64}`;
+    return base64;
 };
 
 const shouldNavigate = (event: React.MouseEvent) =>
@@ -65,17 +71,37 @@ export function createMotor<T>(defaultState: T, options?: IMotorOptions<T>) {
     const MotorProvider: React.FunctionComponent = ({ children }) => {
         const [state, setState] = React.useState<T>(defaultState);
 
-        const syncRoute = () => {
-            const path = window.location.pathname;
+        const navigate = (newState: T, replace = false) => {
+            const path = "/" + motorOptions.stateToPath(newState);
 
-            if (path === "/") {
-                window.history.replaceState(null, "", motorOptions.stateToPath(state));
+            if (replace) {
+                window.history.replaceState(null, "", path);
             } else {
-                setState(motorOptions.pathToState(path));
+                window.history.pushState(null, "", path);
+            }
+            setState(newState);
+        };
+
+        const syncRoute = () => {
+            const path = window.location.pathname.substr(1);
+
+            try {
+                const newState = motorOptions.pathToState(path);
+
+                setState(newState);
+            } catch (error) {
+                if (error instanceof RedirectMotor) {
+                    // Redirect to provided state
+                    navigate(error.state, true);
+                } else {
+                    // Rethrow uncaught error
+                    throw error;
+                }
             }
         };
 
         useLayoutEffect(() => {
+            // Sync route on mounting of component
             syncRoute();
         }, []);
 
@@ -86,13 +112,6 @@ export function createMotor<T>(defaultState: T, options?: IMotorOptions<T>) {
                 window.removeEventListener("popstate", syncRoute);
             };
         }, []);
-
-        const navigate = (newState: T) => {
-            const path = motorOptions.stateToPath(newState);
-
-            window.history.pushState(null, "", path);
-            setState(newState);
-        };
 
         return (
             <motorContext.Provider

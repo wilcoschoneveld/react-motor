@@ -18,61 +18,22 @@ export class RedirectMotor<T> {
     }
 }
 
-export const b64encode = (rawString: string) => {
-    return window
-        .btoa(rawString)
-        .replace(/\+/g, "-") // Convert '+' to '-'
-        .replace(/\//g, "_") // Convert '/' to '_'
-        .replace(/=+$/, ""); // Remove trailing =
-};
-
-export const b64decode = (base64: string) => {
-    while (base64.length % 4 > 0) {
-        base64 += "=";
-    }
-
-    base64 = base64
-        .replace(/\-/g, "+") // Convert '-' to '+'
-        .replace(/\_/g, "/"); // Convert '_' to '/'
-
-    return window.atob(base64);
-};
-
-const pathToState = (path: string) => {
-    const rawString = b64decode(path);
-    const state = JSON.parse(rawString);
-
-    return state;
-};
-
-const stateToPath = (state: any) => {
-    const rawString = JSON.stringify(state);
-    const base64 = b64encode(rawString);
-
-    return base64;
-};
-
 const shouldNavigate = (event: React.MouseEvent) =>
     !event.defaultPrevented &&
     event.button === 0 &&
     !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
 
-export function createMotor<T>(defaultState: T, options?: IMotorOptions<T>) {
+export function createMotor<T>(defaultState: T, options: IMotorOptions<T> = simpleTourer) {
     const motorContext = React.createContext<IMotorContext<T>>({
         state: defaultState,
         navigate: () => null
     });
 
-    const motorOptions = options || {
-        pathToState,
-        stateToPath
-    };
-
     const MotorProvider: React.FunctionComponent = ({ children }) => {
         const [state, setState] = React.useState<T>(defaultState);
 
         const navigate = (newState: T, replace = false) => {
-            const path = "/" + motorOptions.stateToPath(newState);
+            const path = "/" + options.stateToPath(newState);
 
             if (replace) {
                 window.history.replaceState(null, "", path);
@@ -86,7 +47,7 @@ export function createMotor<T>(defaultState: T, options?: IMotorOptions<T>) {
             const path = window.location.pathname.substr(1);
 
             try {
-                const newState = motorOptions.pathToState(path);
+                const newState = options.pathToState(path);
 
                 setState(newState);
             } catch (error) {
@@ -129,7 +90,7 @@ export function createMotor<T>(defaultState: T, options?: IMotorOptions<T>) {
 
     const Link: React.FunctionComponent<{ to: T; onClick?: () => void }> = ({ to, onClick, children }) => {
         const motor = useMotor();
-        const href = motorOptions.stateToPath(to);
+        const href = options.stateToPath(to);
 
         const onClickAnchor = (event: React.MouseEvent) => {
             if (shouldNavigate(event)) {
@@ -151,4 +112,46 @@ export function createMotor<T>(defaultState: T, options?: IMotorOptions<T>) {
     };
 
     return { MotorProvider, useMotor, Link };
+}
+
+
+/** Utils */
+
+export const b64encode = (rawString: string) => {
+    return window
+        .btoa(rawString)
+        .replace(/\+/g, "-") // Convert '+' to '-'
+        .replace(/\//g, "_") // Convert '/' to '_'
+        .replace(/=+$/, ""); // Remove trailing =
+};
+
+export const b64decode = (base64: string) => {
+    while (base64.length % 4 > 0) {
+        base64 += "=";
+    }
+
+    base64 = base64
+        .replace(/\-/g, "+") // Convert '-' to '+'
+        .replace(/\_/g, "/"); // Convert '_' to '/'
+
+    return window.atob(base64);
+};
+
+const pathToState = (path: string) => {
+    const rawString = b64decode(path);
+    const state = JSON.parse(rawString);
+
+    return state;
+};
+
+const stateToPath = (state: any) => {
+    const rawString = JSON.stringify(state);
+    const base64 = b64encode(rawString);
+
+    return base64;
+};
+
+export const simpleTourer = {
+    pathToState,
+    stateToPath
 }

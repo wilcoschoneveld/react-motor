@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect } from "react";
 
 interface IMotorContext<T> {
     state: T;
-    navigate: (state: T) => void;
+    navigate: (state: T, replace?: boolean) => void;
 }
 
 interface IMotorOptions<T> {
@@ -23,7 +23,8 @@ const shouldNavigate = (event: React.MouseEvent) =>
     event.button === 0 &&
     !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
 
-export function createMotor<T>(defaultState: T, options: IMotorOptions<T> = simpleTourer) {
+
+export function createMotor<T>(defaultState: T, options: IMotorOptions<T>) {
     const motorContext = React.createContext<IMotorContext<T>>({
         state: defaultState,
         navigate: () => null
@@ -136,22 +137,3 @@ export const b64decode = (base64: string) => {
 
     return window.atob(base64);
 };
-
-const pathToState = (path: string) => {
-    const rawString = b64decode(path);
-    const state = JSON.parse(rawString);
-
-    return state;
-};
-
-const stateToPath = (state: any) => {
-    const rawString = JSON.stringify(state);
-    const base64 = b64encode(rawString);
-
-    return base64;
-};
-
-export const simpleTourer = {
-    pathToState,
-    stateToPath
-}

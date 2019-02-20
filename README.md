@@ -10,7 +10,7 @@ Features:
 * Navigate to desired state with the `navigate` function
 * Features a declarative Link component (anchor with `href`)
 * Supports major browsers including IE11
-* Written in TypeScript (type definitions are included in package)
+* Written in **TypeScript** (type definitions are included in package)
 * Requires React 16.8 or higher with Hooks support
 * Light weight and zero dependencies 
 
@@ -66,7 +66,6 @@ Wrap your app contents with the MotorProvider:
 ```javascript
 import React from "react";
 
-// Wrap your application with the MotorProvider
 function App() {
   return (
     <MotorProvider>
@@ -76,8 +75,8 @@ function App() {
 }
 ```
 
+Use useMotor hook or Link component anywhere:
 ```javascript
-// Use useMotor hook or Link component anywhere
 function Tabs() {
   const { state, navigate } = useMotor();
 
@@ -105,4 +104,4 @@ function Tabs() {
 
 * [Flat routing](https://codesandbox.io/s/rloy1jxlmp)
 * [Base64 encoding](https://codesandbox.io/s/015y8non70)
-* Advanced routing with typescript (TODO)
+* [Advanced routing and validation with typescript](https://codesandbox.io/s/r0ljzqqp8n)

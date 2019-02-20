@@ -1,26 +1,25 @@
 # react-motor 🏍
 
+A React router for navigation between arbitrary states. You create a motor with a custom state-to-path encoder/decoder and use it to navigate around your application.
+
 ## Contents
 
-- [Introduction](#introduction)
+- [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Example](#example)
 - [More Examples](#more-examples)
 
-## Introduction
+## Features
 
-A React router for navigation between arbitrary states. You create a motor with a custom state-to-path encoder/decoder and use it to navigate around your application.
-
-Features:
 * Synchronizes state with browser URL through the browser history
-* URL encoding/decoding logic is defined in a single location
+* Custom URL encoding/decoding logic defined in a single location
 * Navigate to desired state with the `navigate` function
-* Features a declarative Link component (anchor with `href`)
+* Features a declarative `Link` component (`<a>` with `href`)
 * Supports major browsers including IE11
-* Written in **TypeScript** (type definitions are included in package)
-* Requires React 16.8 or higher with Hooks support
-* Light weight and zero dependencies 
+* Written in **TypeScript** (type definitions included)
+* Requires React 16.8 or higher with Hooks and Context API
+* Functional, lightweight and zero dependencies
 
 ## Installation
 

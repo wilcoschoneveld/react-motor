@@ -1,5 +1,13 @@
 # react-motor 🏍
 
+## Contents
+
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Example](#example)
+- [More Examples](#more-examples)
+
 ## Introduction
 
 A React router for navigation between arbitrary states. You create a motor with a custom state-to-path encoder/decoder and use it to navigate around your application.

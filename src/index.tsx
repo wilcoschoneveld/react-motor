@@ -23,7 +23,6 @@ const shouldNavigate = (event: React.MouseEvent) =>
     event.button === 0 &&
     !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
 
-
 export function createMotor<T>(defaultState: T, options: IMotorOptions<T>) {
     const motorContext = React.createContext<IMotorContext<T>>({
         state: defaultState,
@@ -89,9 +88,13 @@ export function createMotor<T>(defaultState: T, options: IMotorOptions<T>) {
 
     const useMotor = () => React.useContext(motorContext);
 
-    const Link: React.FunctionComponent<{ to: T; onClick?: (event: React.MouseEvent) => void }> = ({ to, onClick, children }) => {
+    const Link: React.FunctionComponent<{ to: T; onClick?: (event: React.MouseEvent) => void }> = ({
+        to,
+        onClick,
+        children
+    }) => {
         const motor = useMotor();
-        const href = options.stateToPath(to);
+        const href = "/" + options.stateToPath(to);
 
         const onClickAnchor = (event: React.MouseEvent) => {
             if (shouldNavigate(event)) {
@@ -114,7 +117,6 @@ export function createMotor<T>(defaultState: T, options: IMotorOptions<T>) {
 
     return { MotorProvider, useMotor, Link };
 }
-
 
 /** Utils */
 

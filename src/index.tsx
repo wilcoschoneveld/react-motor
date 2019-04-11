@@ -88,11 +88,11 @@ export function createMotor<T>(defaultState: T, options: IMotorOptions<T>) {
 
     const useMotor = () => React.useContext(motorContext);
 
-    const Link: React.FunctionComponent<{ to: T; onClick?: (event: React.MouseEvent) => void }> = ({
-        to,
-        onClick,
-        children
-    }) => {
+    const Link: React.FunctionComponent<{
+        to: T;
+        onClick?: (event: React.MouseEvent) => void;
+        style?: React.CSSProperties;
+    }> = ({ to, onClick, children, style }) => {
         const motor = useMotor();
         const href = "/" + options.stateToPath(to);
 
@@ -109,7 +109,7 @@ export function createMotor<T>(defaultState: T, options: IMotorOptions<T>) {
         };
 
         return (
-            <a href={href} onClick={onClickAnchor}>
+            <a href={href} onClick={onClickAnchor} style={style}>
                 {children}
             </a>
         );

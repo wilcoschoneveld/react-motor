@@ -20,6 +20,6 @@
     "devDependencies": {
         "@types/react": "16.8.3",
         "react": "16.8.2",
-        "typescript": "3.3.3"
+        "typescript": "3.4.5"
     }
 }

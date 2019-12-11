@@ -92,7 +92,8 @@ export function createMotor<T>(defaultState: T, options: IMotorOptions<T>) {
         to: T;
         onClick?: (event: React.MouseEvent) => void;
         style?: React.CSSProperties;
-    }> = ({ to, onClick, children, style }) => {
+        [x: string]: any;
+    }> = ({ to, onClick, children, style, ...other }) => {
         const motor = useMotor();
         const href = "/" + options.stateToPath(to);
 
@@ -109,7 +110,7 @@ export function createMotor<T>(defaultState: T, options: IMotorOptions<T>) {
         };
 
         return (
-            <a href={href} onClick={onClickAnchor} style={style}>
+            <a href={href} onClick={onClickAnchor} style={style} {...other}>
                 {children}
             </a>
         );
